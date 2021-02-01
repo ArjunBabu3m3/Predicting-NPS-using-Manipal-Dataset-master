@@ -1,0 +1,384 @@
+---
+title: "Data mining case study 2"
+author: "Ankit B V S, Suhas Kotaki, Prateik Lalwani"
+date: "11/27/2019"
+output: word_document
+---
+
+```{r}
+
+library(readxl)
+
+trainb   <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",2)
+testb    <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",3)
+trainm <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",4)
+testm  <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",5)
+
+
+#trainb <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Training Data or Binary Class")
+#testb <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Test Data for Binary Class")
+d1 <- trainb
+d2 <- testb
+
+#trainm <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Training Data for Multi-Class M")
+#testm <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Test Data for Multi-Class Model")
+d3 <- trainm
+d4 <- testm
+
+```
+
+```{r}
+#converting categorical vars using as.factor
+num <- which(names(trainb)%in%c("MaritalStatus","Sex","BedCategory","Department","InsPayorcategory","STATEZONE","State","Country","NPS_Status"))
+for (i in num){
+  d1[[i]] <- as.factor(d1[[i]])
+  d2[[i]] <- as.factor(d2[[i]])
+  d3[[i]] <- as.factor(d3[[i]])
+  d4[[i]] <- as.factor(d4[[i]])
+}
+
+#removing unwanted variable like date and serial number
+num1 <- which(names(trainb)%in%c("SN","HospitalNo2","AdmissionDate","DischargeDate"))
+d1 <- d1 [,-num1]
+d2 <- d2 [,-num1]
+d3 <- d3 [,-num1]
+d4 <- d4 [,-num1]
+num2 <-  which(names(d1)%in%c("CE_ACCESSIBILITY","DP_DISCHARGEPROCESS"))
+
+num5 <- which(names(d1)%in%c("CE_NPS"))
+d11 <- d1[,-num5]
+d12 <- d2[,-num5]
+d13 <- d3[,-num5]
+d14 <- d4[,-num5]
+#install.packages("brglm2")
+library(brglm2)
+library(glm2)
+
+```
+
+```{r}
+quas <- glm(d11$NPS_Status~.,data = d11,family = binomial("logit"),method="detect_separation",linear_program="dual")
+#Quasi Variables -> MaritalStatusMarried,MaritalStatusSeparated,MaritalStatusSingle,MaritalStatusWidowed,Country,State,BedCategory
+
+num6 <- which(names(d11)%in%c("MaritalStatus","Country","State","BedCategory"))
+d11 <- d11[,-num6]
+d12 <- d12[,-num6]
+d13 <- d13[,-num6]
+d14 <- d14[,-num6]
+
+do1 <- d11
+do2 <- d12
+do3 <- d13
+do4 <- d14
+
+num7 <- which(names(d11)%in%c("CE_ACCESSIBILITY","DP_DISCHARGEPROCESS","InsPayorcategory"))
+do1 <- do1[,-num7]
+do2 <- do2[,-num7]
+do3 <- do3[,-num7]
+do4 <- do4[,-num7]
+
+
+
+
+for ( i in 7:41){
+  d11[[i]] <- as.ordered(d11[[i]])
+  d12[[i]] <- as.ordered(d12[[i]])
+  d13[[i]] <- as.ordered(d13[[i]])
+  d14[[i]] <- as.ordered(d14[[i]])
+}
+
+library(MASS)
+
+```
+
+```{r}
+
+#stepwise <- glm(d11$NPS_Status~.,data = d11,family = binomial("logit"))
+#step <- stepAIC(stepwise, direction = "both", trace = FALSE)
+
+#pred <- predict(step,newdata = d11)
+
+#d11$NS_NURSEPROACTIVENESS
+
+d112 <- subset(d12,d12$NS_NURSEPROACTIVENESS != 1)
+
+#d112$NS_NURSEPROACTIVENESS
+
+#str(d12)
+#d111$EM_DOCTOR
+
+d111 <- d11
+
+bn <- which(colnames(d12)=="NPS_Status")
+#pred <- predict(step,newdata = d111[,-bn])
+
+```
+
+```{r}
+
+num8 <- which(names(d11)%in%c("DOC_ATTITUDE","EM_DOCTOR","OVS_OVERALLSTAFFATTITUDE"))
+
+d111 <- d11
+
+d112 <- subset(d12,d12$NS_NURSEPROACTIVENESS != 1)
+d112[[34]] = factor(d112[[34]],levels=2:4,labels = c("2","3","4"),ordered=T)
+d111 <- subset(d111,d111$OVS_OVERALLSTAFFATTITUDE != 1)
+d111 <- subset(d111,d111$DOC_ATTITUDE != 1)
+d111 <- subset(d111,d111$EM_DOCTOR != 1)
+d111[[12]] = factor(d111[[12]],levels=2:4,labels = c("2","3","4"),ordered=T)
+d111[[29]] = factor(d111[[29]],levels=2:4,labels = c("2","3","4"),ordered=T)
+d111[[36]] = factor(d111[[36]],levels=2:4,labels = c("2","3","4"),ordered=T)
+
+#str(d111)
+#str(d112)
+d111 <- d111[,-5]
+d112 <- d112[,-5]
+
+```
+
+```{r}
+#rf1 <- randomForest(d111$NPS_Status~.,data = d111, mtry =3,ntree=300)
+#pred1 <- predict(rf1,newdata = d112)
+#tb1 <- table(pred1,d112$NPS_Status)
+#accu <- sum(diag(tb1))/sum(tb1)
+
+mt <- c(3,5,10,15,18)
+
+
+d11_f <- d111[sample(nrow(d111)),]
+folds <- cut(seq(1,nrow(d11_f)),breaks = 10,labels = FALSE)
+accu <- 0
+bestaccu <- 0
+
+d11_f <- d111[sample(nrow(d111)),]
+folds <- cut(seq(1,nrow(d11_f)),breaks = 10,labels = FALSE)
+accu <- 0
+bestaccu <- 0
+#for (j in 1:10){
+#  for(i in mt){
+#    bestaccu <- accu
+#    test <- which(folds == j,arr.ind = TRUE)
+#    train <- d11_f[-test,]
+#    testd <- d11_f[test,]
+#    rf2 <- randomForest(train$NPS_Status~.,data = train, mtry = i, ntree = 300)
+#    pred2 <- predict(rf2,newdata = testd)
+#    tb2 <- table(pred2,testd$NPS_Status)
+#    accu <- sum(diag(tb2))/sum(tb2)
+#    if (bestaccu > accu){
+#      bestaccu <- accu
+#      bestm <- i
+#    }
+#}
+#  
+#  
+#}
+
+```
+
+```{r}
+#Using model to predict test data with mtry of 15 and ntree of 300, accuracy is 75.27%
+library(randomForest)
+rf2 <- randomForest(d111$NPS_Status~.,data = d111, mtry = 15, ntree = 300)
+pred1 <- predict(rf2,newdata = d112)
+tb1 <- table(pred1,d112$NPS_Status)
+accu <- sum(diag(tb1))/sum(tb1)
+
+```
+
+
+```{r}
+#Adaboost model
+
+#binomial
+
+#install.packages("adabag")
+library("adabag")
+e <- c()
+m <- c()
+a <- 1
+
+d111 <- as.data.frame(d111)
+#for (m in c(10,50,100,200)) {
+#  cv = boosting.cv(NPS_Status ~.,v=10, data =d111, mfinal = m, control = rpart.control(maxdepth = 1))
+#  e[a] <- cv$error
+#  m[a] <- m
+#  a <- a+1
+#}
+e
+m
+#Using mfinal value as 100
+#Building model with the best mfinal value
+d111$NPS_Status = as.factor(d111$NPS_Status)
+#ad1 = boosting(NPS_Status ~ ., data = d111, mfinal = 100, control = rpart.control(maxdepth = 1))
+#adaboost.fit
+#pred_boosting = predict.boosting(ad1,newdata = d112)
+#Test accuracy
+#test_accu1=1-(pred_boosting$error)
+
+
+#d113 <- as.data.frame(d113)
+#for (m in c(10,50,100,200)) {
+#  cv = boosting.cv(NPS_Status ~.,v=10, data =d113, mfinal = m, control = rpart.control(maxdepth = 1))
+#  e[a] <- cv$error
+#  m[a] <- m
+#  a <- a+1
+#}
+e
+m
+#Using mfinal value as 50
+#Building model with the best mfinal value
+#d113 <- as.data.frame(d113)
+#d114 <- as.data.frame(d114)
+#d113$NPS_Status = as.factor(d113$NPS_Status)
+#ad = boosting(NPS_Status ~ ., data = d113, mfinal = 50, control = rpart.control(maxdepth = 1))
+#adaboost.fit
+#pred_boosting = predict.boosting(ad,newdata = d114)
+#Test accuracy
+#test_accu=1-(pred_boosting$error)
+
+
+```
+
+```{r}
+#Multinomial
+
+d114 <- subset(d14,d14$NS_NURSEPROACTIVENESS != 1)
+d114[[34]] = factor(d114[[34]],levels=2:4,labels = c("2","3","4"),ordered=T)
+d113 <- d13
+d113 <- subset(d113,d113$OVS_OVERALLSTAFFATTITUDE != 1)
+d113 <- subset(d113,d113$DOC_ATTITUDE != 1)
+d113 <- subset(d113,d113$EM_DOCTOR != 1)
+d113[[12]] = factor(d113[[12]],levels=2:4,labels = c("2","3","4"),ordered=T)
+d113[[29]] = factor(d113[[29]],levels=2:4,labels = c("2","3","4"),ordered=T)
+d113[[36]] = factor(d113[[36]],levels=2:4,labels = c("2","3","4"),ordered=T)
+
+d113 <- d113[,-5]
+d114 <- d114[,-5]
+
+mt <- c(3,5,10,15,18)
+
+
+d11_f <- d113[sample(nrow(d111)),]
+folds <- cut(seq(1,nrow(d11_f)),breaks = 10,labels = FALSE)
+accu <- 0
+bestaccu <- 0
+
+```
+
+```{r}
+#Using model to predict test data with mtry of 15 and ntree of 300, accuracy is 68.61%
+rf3 <- randomForest(d113$NPS_Status~.,data = d113, mtry = 15, ntree = 300)
+pred1 <- predict(rf3,newdata = d114)
+tb1 <- table(pred1,d114$NPS_Status)
+accu <- sum(diag(tb1))/sum(tb1)
+
+```
+
+```{rerror=TRUE}
+
+#Number of detractors and promotors
+sum(d111$NPS_Status == "Detractor")
+sum(d111$NPS_Status != "Detractor") + sum(d111$NPS_Status == "Detractor")
+
+#Undersampling
+
+indp <- which(d111$NPS_Status == "Promotor")
+ind <- which(d111$NPS_Status == "Detractor")
+pick1 <- sample(indp,0.6*3138)
+pick2 <- sample(ind,1822)
+d111_u <- d111[c(pick1,pick2),]
+
+#Oversampling
+
+indp <- which(d111$NPS_Status == "Promotor")
+ind <- which(d111$NPS_Status == "Detractor")
+pick1 <- sample(indp,4130,replace = TRUE)
+pick2 <- sample(ind,1822)
+d111_o <- d111[c(pick1,pick2),]
+
+#SMOTE
+library(DMwR)
+num11 <- which(names(d1)%in%c("Department","Estimatedcost","STATEZONE", "CE_ACCESSIBILITY","CE_CSAT","CE_VALUEFORMONEY","EM_NURSING","EM_DOCTOR","AD_TARRIFFPACKAGESEXPLAINATION","AD_STAFFATTITUDE","INR_ROOMCLEANLINESS","INR_ROOMAMBIENCE","FNB_FOODDELIVERYTIME","AE_PATIENTSTATUSINFO","AE_ATTENDEEFOOD","DOC_TREATMENTEXPLAINATION","DOC_VISITS","NS_CALLBELLRESPONSE","NS_NURSEPROACTIVENESS","OVS_OVERALLSTAFFPROMPTNESS","DP_DISCHARGEQUERIES","LengthofStay","NPS_Status"))
+num12 <- which(names(do1)%in%c("CE_ACCESSIBILITY","DP_DISCHARGEPROCESS"))
+do1 <- d1
+do1 <- do1[,num11]
+do1 <- do1[,-num12]
+
+num13 <- which(names(do1)%in%c("Department","STATEZONE","CE_ACCESSIBILITY","NPS_Status"))
+num14 <- which(names(do1)%in%c("CE_CSAT","DP_DISCHARGEQUERIES"))
+for (h in num13){
+  do1[[h]] <- as.factor(do1[[h]])
+}
+for (m in 5:21){
+  do1[[m]] <- as.factor(do1[[m]])
+}
+
+indp <- which(do1$NPS_Status == "Promotor")
+ind <- which(do1$NPS_Status == "Detractor")
+
+
+newData <- SMOTE(NPS_Status ~ ., do1, perc.over = 100,perc.under=100)
+
+```
+
+```{rerror=TRUE}
+#random forest
+
+do111 <- d111
+
+num13 <- which(names(do111)%in%c("EM_DOCTOR"))
+rfs <- randomForest(do111$NPS_Status~.,data = do111, mtry = 15, ntree = 300)
+pred1 <- predict(rfs,newdata = do2)
+tb1 <- table(pred1,do2$NPS_Status)
+accu3 <- sum(diag(tb1))/sum(tb1)
+accu3
+
+
+```
+
+```{rerror=TRUE}
+library(xgboost)
+library(adabag)
+do111 <- d111
+#Ada boost
+do2 <- as.data.frame(do2)
+#boos3 = boosting(NPS_Status ~ ., data = do111, mfinal = 15, control = rpart.control(maxdepth = 1))
+#pred_boosting3 = predict.boosting(boos3,newdata = do2)
+#test_accu=1-(pred_boosting3$error)
+
+```
+
+
+```{rerror=TRUE}
+
+#Oversampling
+indp <- which(do111$NPS_Status == "Promotor")
+ind <- which(do111$NPS_Status == "Detractor")
+pick1 <- sample(indp,4130,replace = TRUE)
+pick2 <- sample(ind,1822)
+d111_o <- do111[c(pick1,pick2),]
+#boos2 = boosting(NPS_Status ~ ., data = d111_o, mfinal = 15, control = rpart.control(maxdepth = 1))
+#pred_boosting2 = predict.boosting(boos2,newdata = do2)
+#test_accu=1-(pred_boosting3$error)
+
+```
+
+
+```{rerror=TRUE}
+
+#Undersampling
+indp <- which(do111$NPS_Status == "Promotor")
+ind <- which(do111$NPS_Status == "Detractor")
+pick1 <- sample(indp,0.6*3138)
+pick2 <- sample(ind,1822)
+d111_u <- do111[c(pick1,pick2),]
+#boos1 = boosting(NPS_Status ~ ., data = d111_u, mfinal = 100, control = rpart.control(maxdepth = 1))
+#pred_boosting1 = predict.boosting(boos1,newdata = do2)
+#test_accu=1-(pred_boosting1$error)
+
+```
+
+
+
+
+
