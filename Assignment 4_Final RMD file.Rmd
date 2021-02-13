@@ -1,6 +1,6 @@
 ---
 title: "Data mining case study 2"
-author: "Ankit B V S, Suhas Kotaki, Prateik Lalwani"
+author: "Arjun Babu"
 date: "11/27/2019"
 output: word_document
 ---
@@ -9,19 +9,19 @@ output: word_document
 
 library(readxl)
 
-trainb   <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",2)
-testb    <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",3)
-trainm <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",4)
-testm  <- read_excel("C:/Users/bvsba/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",5)
+trainb   <- read_excel("C:/Users/arjun/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",2)
+testb    <- read_excel("C:/Users/arjun/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",3)
+trainm <- read_excel("C:/Users/arjun/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",4)
+testm  <- read_excel("C:/Users/arjun/Desktop/UIC/Semester 1/IDS 572 - Data Mining/Case Study 3/IMB651-XLS-ENG.xlsx",5)
 
 
-#trainb <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Training Data or Binary Class")
-#testb <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Test Data for Binary Class")
+#trainb <- read_excel("C:/Users/arjun/Desktop/NPS.xlsx", sheet = "Training Data or Binary Class")
+#testb <- read_excel("C:/Users/arjun/Desktop/NPS.xlsx", sheet = "Test Data for Binary Class")
 d1 <- trainb
 d2 <- testb
 
-#trainm <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Training Data for Multi-Class M")
-#testm <- read_excel("C:/Users/Suhas Kotaki/Desktop/NPS.xlsx", sheet = "Test Data for Multi-Class Model")
+#trainm <- read_excel("C:/Users/arjun/Desktop/NPS.xlsx", sheet = "Training Data for Multi-Class M")
+#testm <- read_excel("C:/Users/arjun/Desktop/NPS.xlsx", sheet = "Test Data for Multi-Class Model")
 d3 <- trainm
 d4 <- testm
 
