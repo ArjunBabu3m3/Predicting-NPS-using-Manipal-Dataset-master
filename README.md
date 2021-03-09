@@ -59,7 +59,7 @@ Finally, we understand how NPS can be used as an effective tool to understand cu
 
 ![alt text](manipalres.PNG)
 
-Below are some of the things which we have leant on account of our analysis - 
+Below are some of the things which we have learnt on account of our analysis - 
 
 * The strategy should follow the plan of controlling the important factors which lead to the customer’s response on the overall experience during their treatment at the hospital. * The forward selection model, helps to determine the important factors that was associated with response variable. 
 * The hospital should ensure to the work with the below variables to control the number of detractors - 
